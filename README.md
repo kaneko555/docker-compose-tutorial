@@ -1,6 +1,13 @@
-# docker-compose-tutorial
+---
+marp: true
+theme: default
+paginate: true
+header: Docker Compose Tutorial
+---
 
 docker compose勉強会用リポジトリ
+
+---
 
 ## はじめに
 
@@ -10,6 +17,8 @@ docker compose勉強会用リポジトリ
 - dockerコマンドが使用できること
 - gitコマンドが使用できること
 
+---
+
 ### やること
 
 - Gitリポジトリのクローン(復習)
@@ -18,10 +27,14 @@ docker compose勉強会用リポジトリ
 - DB初期化（初級編）
 - DB初期化（上級編）
 
+---
+
 ### やらないこと
 
 - expressの環境構築
 - フロントエンドの用意
+
+---
 
 ## [ステップ1] 復習
 
@@ -30,6 +43,8 @@ docker compose勉強会用リポジトリ
 ```sh
 git clone https://github.com/kaneko555/docker-compose-tutorial.git
 ```
+
+---
 
 まずは前回の復習も兼ねてdockerコマンドでコンテナを起動してみましょう
 
@@ -46,18 +61,22 @@ docker-compose-tutorial$ docker run -d \
   node index.js
 ```
 
+---
+
+#### バックエンド疎通確認
+
 ```sh
 docker-compose-tutorial$ docker ps -a
 CONTAINER ID   IMAGE         COMMAND                  CREATED          STATUS          PORTS                                                    NAMES
 8733b5b10c97   backend-app   "docker-entrypoint.s…"   23 minutes ago   Up 23 minutes   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp              backend-app
 ```
 
-#### バックエンド疎通確認
-
 ```sh
 docker-compose-tutorial$ curl http://localhost:8080
 Hello from Express!
 ```
+
+---
 
 ### MySQLコンテナを起動
 
@@ -80,6 +99,8 @@ d3acf04de1a0   mysql:8       "docker-entrypoint.s…"   23 minutes ago   Up 23 m
 8733b5b10c97   backend-app   "docker-entrypoint.s…"   23 minutes ago   Up 23 minutes   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp              backend-app
 ```
 
+---
+
 #### mysqlテーブル確認
 
 ```sh
@@ -91,6 +112,8 @@ mysql>$ exit
 bash-5.1$ exit
 ```
 
+---
+
 ### カスタムネットワークを作成して接続
 
 ただし、今の状態では `backend-my-app` と `mysql` は通信できません。
@@ -99,6 +122,8 @@ bash-5.1$ exit
 docker-compose-tutorial$ curl http://localhost:8080/users
 {"message":"Internal server error"}
 ```
+
+---
 
 なぜなら先ほど起動したコンテナはそれぞれ独立しており、紐づいていないからです。
 
@@ -109,6 +134,8 @@ docker-compose-tutorial$ docker network create my-network
 docker-compose-tutorial$ docker network connect my-network mysql
 docker-compose-tutorial$ docker network inspect my-network
 ```
+
+---
 
 さらにバックエンドにMySQL接続に必要な環境変数を追加してかつ、DBと同じネットワークで起動させなければなりません。
 
@@ -128,6 +155,8 @@ docker-compose-tutorial$ docker run -d \
   backend-app \
   node index.js
 ```
+
+---
 
 ```sh
 docker-compose-tutorial$ docker ps -a
@@ -150,7 +179,11 @@ docker-compose-tutorial$ docker stop backend-app mysql
 docker-compose-tutorial$ docker rm backend-app mysql
 ```
 
+---
+
 ## 10分 休憩
+
+---
 
 ## [ステップ2] docker composeを使用してみる
 
@@ -163,6 +196,8 @@ dockerコマンドで複数のコンテナを扱おうとすると**非常**に�
 それを毎回、毎日行うのは面倒すぎる...
 その為に `docker compose` という物が用意されています。
 
+---
+
 実際に使用してみましょう。
 
 ```sh
@@ -174,7 +209,9 @@ d9df5a532f21   docker-backend-app   "docker-entrypoint.s…"   2 seconds ago   U
 f40bd2e79313   mysql:8              "docker-entrypoint.s…"   2 seconds ago   Up 2 seconds   0.0.0.0:3306->3306/tcp, [::]:3306->3306/tcp, 33060/tcp   mysql
 ```
 
-**これだけで簡単に**複数のコンテナを管理・構成・起動できる
+---
+
+**これだけで簡単に**複数のコンテナを管理・構成・起動できる！
 
 #### 動作確認
 
@@ -182,6 +219,8 @@ f40bd2e79313   mysql:8              "docker-entrypoint.s…"   2 seconds ago   U
 docker-compose-tutorial$ curl http://localhost:8080/users
 [{"id":1,"name":"taro"},{"id":2,"name":"hanako"}] # エラーが出たら少し時間を置く(1分程度)
 ```
+
+---
 
 ### ただしデメリット/注意点も存在します
 
@@ -195,6 +234,8 @@ docker composeを使用する場合のデメリット
 - 設定ファイルが複雑化しやすい
   - 規模が大きくなると、`docker-compose.yml` が肥大化・複雑化する。
 
+---
+
 ## [ステップ3] DB初期化（初級編）
 
 DBにテーブルを用意したり初期値を入れたいケースもあるかと思います。
@@ -202,6 +243,8 @@ DBにテーブルを用意したり初期値を入れたいケースもあるか
 [dockerのmysql公式ドキュメント](https://hub.docker.com/_/mysql)を見ると、その為の機能が実装されています。
 
 > `/docker-entrypoint-initdb.d` にある拡張子が `.sh`、`.sql`、`.sql.gz` のファイルも実行されます。SQLダンプをそのディレクトリ⁠にマウントすることで、サービスを簡単に設定できます。
+
+---
 
 ## [ステップ4] DB初期化（上級編）
 
@@ -214,6 +257,9 @@ DBにテーブルを用意したり初期値を入れたいケースもあるか
 - 制御ロジックが必要な場合
   - `init.sql` 等では単純なSQL実行しかできない
   - 条件分岐、マイグレーションのバージョン管理、ロールバックなどの制御は記載できない
+
+---
+
 - 他サービスの準備が必要な場合
   - `init.sql` はMySQLの「内部」で実行されるため、他サービスとの連携ができない
 - 初期化処理がSQL以外を含む場合
@@ -222,6 +268,8 @@ DBにテーブルを用意したり初期値を入れたいケースもあるか
 この様な場合は、別コンテナからスクリプトを実行してデータの加工やINSERTを行います。
 
 中規模以上のプロジェクトではこちらが採用されることが多いかと思います。
+
+---
 
 ### 実際にスクリプト実行用のコンテナを作成してみましょう
 
@@ -232,6 +280,8 @@ usersテーブルのレコードが10件未満なら適当なレコードを5件
 - ヒント３：上記スクリプトにmysqlの接続情報を渡す
 - ヒント４：mysqlの起動後に実行される様にする
 
+---
+
 ## おまけ1
 
 コンテナ内でコードを修正しましたが、正しく動作するか確認したいです。
@@ -240,15 +290,19 @@ usersテーブルのレコードが10件未満なら適当なレコードを5件
 
 ※ ホットリロード：アプリケーションの状態を保持したまま、変更されたモジュールだけを差し替える機能（React等）
 
+---
+
 この様な場合どうすれば良いでしょうか？
 
 1. そのまま動作確認する
 1. `docker compose restart` 後、動作確認する
 1. バックエンドのコンテナに入って `npm run dev` を実行後、動作確認する
 1. バックエンドのコンテナに入ってサービスをKILL後、`npm run dev` を実行後、動作確認する
-1. 自身があるので動作確認しない
+1. 自信があるので動作確認しない
 
 他にはどの様な手段が考えられるでしょうか..？
+
+---
 
 ## おまけ2
 
@@ -266,6 +320,8 @@ usersテーブルのレコードが10件未満なら適当なレコードを5件
 
 ヒント：`.env`を使用してみよう
 
+---
+
 ### level２
 
 現在の実装では、`docker compose up` 後すぐに `http://localhost:8080/users` にリクエストを送るとエラーとなる可能性があります。
@@ -274,6 +330,8 @@ usersテーブルのレコードが10件未満なら適当なレコードを5件
 
 ヒント：`depends_on` はコンテナの起動順序の制御のみです
 
+---
+
 ### level３
 
 **おまけ1**で説明した通り、コード修正を反映させるのに毎回コンテナを起動し直すのは手間です。
@@ -281,6 +339,8 @@ usersテーブルのレコードが10件未満なら適当なレコードを5件
 サービスの起動をコンテナ起動とは分離する事で、開発作業を柔軟に対応する事ができます。
 
 - `docker compose up` ではコンテナの起動のみで、コンテナに入ってからサービスを自由に起動/終了できるようにしてみましょう
+
+---
 
 ## おまけ3
 
