@@ -29,3 +29,17 @@ services:
     volumes:
       - ./mysql/data:/var/lib/mysql
       - ./mysql/init:/docker-entrypoint-initdb.d
+
+  db-init:
+    container_name: db-init
+    image: mysql:8
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: pass
+      DB_NAME: sample_db
+    volumes:
+      - ./mysql/scripts/insert.sh:/init.sh
+    entrypoint: ["bash", "/init.sh"]
