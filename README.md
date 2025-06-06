@@ -51,6 +51,9 @@ git clone https://github.com/kaneko555/docker-compose-tutorial.git
 ### バックエンドコンテナを起動
 
 ```sh
+docker-compose-tutorial$ cd backend
+docker-compose-tutorial/backend$ npm install #nodeインストール手順はこちら https://nodejs.org/ja/download
+docker-compose-tutorial/backend$ cd ../
 docker-compose-tutorial$ docker build -t backend-app ./backend
 docker-compose-tutorial$ docker run -d \
   --name backend-app \
@@ -85,7 +88,7 @@ docker-compose-tutorial$ docker run -d \
   --name mysql \
   --restart always \
   -e MYSQL_ROOT_PASSWORD=pass \
-  -e MYSQL_DATABASE=testdb \
+  -e MYSQL_DATABASE=sample_db \
   -p 3306:3306 \
   -v $(pwd)/docker/mysql/data:/var/lib/mysql \
   -v $(pwd)/docker/mysql/init:/docker-entrypoint-initdb.d \
