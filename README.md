@@ -116,7 +116,7 @@ bash-5.1$ exit
 
 ### カスタムネットワークを作成して接続
 
-ただし、今の状態では `backend-my-app` と `mysql` は通信できません。
+ただし、今の状態では `backend-app` と `mysql` は通信できません。
 
 ```sh
 docker-compose-tutorial$ curl http://localhost:8080/users
@@ -308,7 +308,9 @@ usersテーブルのレコードが10件未満なら適当なレコードを5件
 
 現在の `docker-compose.yml` には幾つかの問題点があります。
 
-今回は以下の点を修正してみましょう。
+難易度別に代表的なのを3つ挙げましたので、修正してみましょう。
+
+---
 
 ### level１
 
